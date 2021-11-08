@@ -84,7 +84,10 @@ class Trainer(object):
                           'slot_labels_ids': batch[4]}
                 if self.args.model_type != 'distilbert':
                     inputs['token_type_ids'] = batch[2]
+               #  print(inputs)
+
                 outputs = self.model(**inputs)
+
                 loss = outputs[0]
 
                 if self.args.gradient_accumulation_steps > 1:
@@ -202,6 +205,8 @@ class Trainer(object):
                 if out_slot_labels_ids[i, j] != self.pad_token_label_id:
                     out_slot_label_list[i].append(slot_label_map[out_slot_labels_ids[i][j]])
                     slot_preds_list[i].append(slot_label_map[slot_preds[i][j]])
+
+        print(slot_preds_list[0], out_slot_label_list[0])
 
         total_result = compute_metrics(intent_preds, out_intent_label_ids, slot_preds_list, out_slot_label_list)
         results.update(total_result)

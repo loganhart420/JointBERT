@@ -101,6 +101,7 @@ class JointProcessor(object):
 
             assert len(words) == len(slot_labels)
             examples.append(InputExample(guid=guid, words=words, intent_label=intent_label, slot_labels=slot_labels))
+        # print(f'slots: {slot_labels}')
         return examples
 
     def get_examples(self, mode):
@@ -133,7 +134,7 @@ def convert_examples_to_features(examples, max_seq_len, tokenizer,
     sep_token = tokenizer.sep_token
     unk_token = tokenizer.unk_token
     pad_token_id = tokenizer.pad_token_id
-
+    
     features = []
     for (ex_index, example) in enumerate(examples):
         if ex_index % 5000 == 0:
@@ -203,7 +204,6 @@ def convert_examples_to_features(examples, max_seq_len, tokenizer,
                           intent_label_id=intent_label_id,
                           slot_labels_ids=slot_labels_ids
                           ))
-
     return features
 
 
@@ -229,6 +229,7 @@ def load_and_cache_examples(args, tokenizer, mode):
         logger.info("Creating features from dataset file at %s", args.data_dir)
         if mode == "train":
             examples = processor.get_examples("train")
+            # print(examples)
         elif mode == "dev":
             examples = processor.get_examples("dev")
         elif mode == "test":
@@ -249,6 +250,10 @@ def load_and_cache_examples(args, tokenizer, mode):
     all_token_type_ids = torch.tensor([f.token_type_ids for f in features], dtype=torch.long)
     all_intent_label_ids = torch.tensor([f.intent_label_id for f in features], dtype=torch.long)
     all_slot_labels_ids = torch.tensor([f.slot_labels_ids for f in features], dtype=torch.long)
+
+    print(f'texts tokens: {all_input_ids, all_attention_mask, all_token_type_ids}\n')
+    print(f'token labels: {all_intent_label_ids}\n')
+    print(f'token slots: {all_slot_labels_ids}\n')
 
     dataset = TensorDataset(all_input_ids, all_attention_mask,
                             all_token_type_ids, all_intent_label_ids, all_slot_labels_ids)
